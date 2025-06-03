@@ -7,12 +7,12 @@ import util
 import os
 from util import *
 import random
-from model.ST_LLM import ST_LLM
+from model_ST_LLM import ST_LLM
 from ranger21 import Ranger
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:21'
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--device", type=str, default="cuda:6", help="")
+parser.add_argument("--device", type=str, default="cuda:0", help="")
 parser.add_argument("--data", type=str, default="bike_drop", help="data path")
 parser.add_argument("--input_dim", type=int, default=3, help="input_dim")
 parser.add_argument("--num_nodes", type=int, default=250, help="number of nodes")
@@ -56,7 +56,7 @@ class trainer:
         device
     ):
         self.model = ST_LLM(
-            input_dim, num_nodes, input_len, output_len, llm_layer, U, device
+            input_dim, 64, num_nodes, input_len, output_len, llm_layer, U, device
         )
         self.model.to(device)
         

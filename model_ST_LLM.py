@@ -32,7 +32,7 @@ class TemporalEmbedding(nn.Module):
         return tem_emb
 
 class PFA(nn.Module):
-    def __init__(self, device="cuda:0", gpt_layers=6, U=1):
+    def __init__(self, gpt_layers=6, U=1, device="cuda:0"):
         super(PFA, self).__init__()
         self.gpt2 = GPT2Model.from_pretrained(
             "gpt2", output_attentions=True, output_hidden_states=True
@@ -42,6 +42,7 @@ class PFA(nn.Module):
 
         for layer_index, layer in enumerate(self.gpt2.h):
             for name, param in layer.named_parameters():
+                print(type(gpt_layers), type(self.U))
                 if layer_index < gpt_layers - self.U:
                     if "ln" in name or "wpe" in name:
                         param.requires_grad = True
@@ -66,7 +67,7 @@ class ST_LLM(nn.Module):
         output_len=12,
         llm_layer=6,
         U=1,
-        device= "cuda:7"
+        device= "cuda:0"
     ):
         super().__init__()
 
@@ -79,11 +80,12 @@ class ST_LLM(nn.Module):
         self.U = U
         self.device = device
 
+        time = 288
         if num_nodes == 170 or num_nodes == 307:
             time = 288
         elif num_nodes == 250 or num_nodes == 266:
             time = 48
-
+        
         gpt_channel = 256
         to_gpt_channel = 768
 
@@ -97,7 +99,7 @@ class ST_LLM(nn.Module):
         )
 
         # embedding layer
-        self.gpt = PFA(device=self.device, gpt_layers=self.llm_layer, U=self.U)
+        self.gpt = PFA(gpt_layers=self.llm_layer, U=self.U, device=self.device)
 
         self.feature_fusion = nn.Conv2d(
             gpt_channel * 3, to_gpt_channel, kernel_size=(1, 1)
